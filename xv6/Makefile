@@ -1,3 +1,12 @@
+CFLAGS += -I ../include
+ASFLAGS += -I ../include
+
+all: bootblock kernel
+
+XV6_IMG = ../build/xv6.img
+FS_IMG = ../build/fs.img
+XV6MEMFS_IMG = ../build/xv6memfs.img
+
 OBJS = \
 	bio.o\
 	console.o\
@@ -50,6 +59,7 @@ TOOLPREFIX := $(shell if i386-jos-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >/d
 	echo "***" 1>&2; exit 1; fi)
 endif
 
+
 # If the makefile can't find QEMU, specify its path here
 #QEMU = 
 
@@ -67,27 +77,29 @@ QEMU = $(shell if which qemu > /dev/null; \
 	echo "***" 1>&2; exit 1)
 endif
 
-CC = $(TOOLPREFIX)gcc
-AS = $(TOOLPREFIX)gas
-LD = $(TOOLPREFIX)ld
-OBJCOPY = $(TOOLPREFIX)objcopy
-OBJDUMP = $(TOOLPREFIX)objdump
+#CC = $(TOOLPREFIX)gcc
+#AS = $(TOOLPREFIX)gas
+#LD = $(TOOLPREFIX)ld
+#OBJCOPY = $(TOOLPREFIX)objcopy
+#OBJDUMP = $(TOOLPREFIX)objdump
 #CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
-CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
+#CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer -std=gnu99 \
+# -ffreestanding -ggdb3 -nostdlib -nostdinc -mno-red-zone -mno-mmx \
+#					  -mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -ggdb3
+#CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+#ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
-LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null)
+#LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null)
 
-xv6.img: bootblock kernel fs.img
-	dd if=/dev/zero of=xv6.img count=10000
-	dd if=bootblock of=xv6.img conv=notrunc
-	dd if=kernel of=xv6.img seek=1 conv=notrunc
+#$(XV6_IMG): bootblock kernel $(FS_IMG)
+#	dd if=/dev/zero of=$(XV6_IMG) count=10000
+#	dd if=bootblock of=$(XV6_IMG) conv=notrunc
+#	dd if=kernel of=$(XV6_IMG) seek=1 conv=notrunc
 
-xv6memfs.img: bootblock kernelmemfs
-	dd if=/dev/zero of=xv6memfs.img count=10000
-	dd if=bootblock of=xv6memfs.img conv=notrunc
-	dd if=kernelmemfs of=xv6memfs.img seek=1 conv=notrunc
+#$(XV6MEMFS_IMG): bootblock kernelmemfs
+#	dd if=/dev/zero of=$(XV6MEMFS_IMG) count=10000
+#	dd if=bootblock of=$(XV6MEMFS_IMG) conv=notrunc
+#	dd if=kernelmemfs of=$(XV6MEMFS_IMG) seek=1 conv=notrunc
 
 bootblock: bootasm.S bootmain.c
 	$(CC) $(CFLAGS) -fno-pic -O -nostdinc -I. -c bootmain.c
@@ -114,23 +126,26 @@ kernel: $(OBJS) entry.o entryother initcode kernel.ld
 	$(OBJDUMP) -S kernel > kernel.asm
 	$(OBJDUMP) -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
+
 # kernelmemfs is a copy of kernel that maintains the
 # disk image in memory instead of writing to a disk.
 # This is not so useful for testing persistent storage or
 # exploring disk buffering implementations, but it is
 # great for testing the kernel on real hardware without
 # needing a scratch disk.
-MEMFSOBJS = $(filter-out ide.o,$(OBJS)) memide.o
-kernelmemfs: $(MEMFSOBJS) entry.o entryother initcode fs.img
-	$(LD) $(LDFLAGS) -Ttext 0x100000 -e main -o kernelmemfs entry.o  $(MEMFSOBJS) -b binary initcode entryother fs.img
-	$(OBJDUMP) -S kernelmemfs > kernelmemfs.asm
-	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
+
+#MEMFSOBJS = $(filter-out ide.o,$(OBJS)) memide.o
+#kernelmemfs: $(MEMFSOBJS) entry.o entryother initcode $(FS_IMG)
+#	$(LD) $(LDFLAGS) -Ttext 0x100000 -e main -o kernelmemfs entry.o  $(MEMFSOBJS) -b binary initcode entryother $(FS_IMG)
+#	$(OBJDUMP) -S kernelmemfs > kernelmemfs.asm
+#	$(OBJDUMP) -t kernelmemfs | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernelmemfs.sym
 
 tags: $(OBJS) entryother.S _init
 	etags *.S *.c
 
 vectors.S: vectors.pl
 	perl vectors.pl > vectors.S
+
 
 ULIB = ulib.o usys.o printf.o umalloc.o
 
@@ -152,7 +167,8 @@ mkfs: mkfs.c fs.h
 # that disk image changes after first build are persistent until clean.  More
 # details:
 # http://www.gnu.org/software/make/manual/html_node/Chained-Rules.html
-.PRECIOUS: %.o
+
+#.PRECIOUS: %.o
 
 UPROGS=\
 	_cat\
@@ -171,31 +187,31 @@ UPROGS=\
 	_wc\
 	_zombie\
 
-fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS)
+#$(FS_IMG): mkfs README $(UPROGS)
+	#./mkfs $(FS_IMG) README $(UPROGS)
 
 -include *.d
 
 clean: 
 	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \
 	*.o *.d *.asm *.sym vectors.S bootblock entryother \
-	initcode initcode.out kernel xv6.img fs.img kernelmemfs mkfs \
+	initcode initcode.out kernel $(XV6_IMG) $(FS_IMG) kernelmemfs mkfs \
 	.gdbinit \
 	$(UPROGS)
 
 # make a printout
-FILES = $(shell grep -v '^\#' runoff.list)
-PRINT = runoff.list runoff.spec README toc.hdr toc.ftr $(FILES)
+#FILES = $(shell grep -v '^\#' runoff.list)
+#PRINT = runoff.list runoff.spec README toc.hdr toc.ftr $(FILES)
 
-xv6.pdf: $(PRINT)
-	./runoff
-	ls -l xv6.pdf
+#xv6.pdf: $(PRINT)
+#	./runoff
+#	ls -l xv6.pdf
 
-print: xv6.pdf
+#print: xv6.pdf
 
 # run in emulators
 
-bochs : fs.img xv6.img
+bochs : $(FS_IMG) $(XV6_IMG)
 	if [ ! -e .bochsrc ]; then ln -s dot-bochsrc .bochsrc; fi
 	bochs -q
 
@@ -208,25 +224,25 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 2
 endif
-QEMUOPTS = -hdb fs.img xv6.img -smp $(CPUS) -m 512 $(QEMUEXTRA)
+QEMUOPTS = -hdb $(FS_IMG) $(XV6_IMG) -smp $(CPUS) -m 512 $(QEMUEXTRA)
 
-qemu: fs.img xv6.img
+qemu: $(FS_IMG) $(XV6_IMG)
 	$(QEMU) -serial mon:stdio $(QEMUOPTS)
 
-qemu-memfs: xv6memfs.img
-	$(QEMU) xv6memfs.img -smp $(CPUS)
+qemu-memfs: $(XV6MEMFS_IMG)
+	$(QEMU) $(XV6MEMFS_IMG) -smp $(CPUS)
 
-qemu-nox: fs.img xv6.img
+qemu-nox: $(FS_IMG) $(XV6_IMG)
 	$(QEMU) -nographic $(QEMUOPTS)
 
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
 
-qemu-gdb: fs.img xv6.img .gdbinit
+qemu-gdb: $(FS_IMG) $(XV6_IMG) .gdbinit
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -serial mon:stdio $(QEMUOPTS) -S $(QEMUGDB)
 
-qemu-nox-gdb: fs.img xv6.img .gdbinit
+qemu-nox-gdb: $(FS_IMG) $(XV6_IMG) .gdbinit
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -nographic $(QEMUOPTS) -S $(QEMUGDB)
 
@@ -236,40 +252,40 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 # rename it to rev0 or rev1 or so on and then
 # check in that version.
 
-EXTRA=\
-	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
-	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
-	printf.c umalloc.c\
-	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
-	.gdbinit.tmpl gdbutil\
-
-dist:
-	rm -rf dist
-	mkdir dist
-	for i in $(FILES); \
-	do \
-		grep -v PAGEBREAK $$i >dist/$$i; \
-	done
-	sed '/CUT HERE/,$$d' Makefile >dist/Makefile
-	echo >dist/runoff.spec
-	cp $(EXTRA) dist
-
-dist-test:
-	rm -rf dist
-	make dist
-	rm -rf dist-test
-	mkdir dist-test
-	cp dist/* dist-test
-	cd dist-test; $(MAKE) print
-	cd dist-test; $(MAKE) bochs || true
-	cd dist-test; $(MAKE) qemu
-
-# update this rule (change rev#) when it is time to
+#EXTRA=\
+#	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
+#	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
+#	printf.c umalloc.c\
+#	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
+#	.gdbinit.tmpl gdbutil\
+#
+#dist:
+#	rm -rf dist
+#	mkdir dist
+#	for i in $(FILES); \
+#	do \
+#		grep -v PAGEBREAK $$i >dist/$$i; \
+#	done
+#	sed '/CUT HERE/,$$d' Makefile >dist/Makefile
+#	echo >dist/runoff.spec
+#	cp $(EXTRA) dist
+#
+#dist-test:
+#	rm -rf dist
+#	make dist
+#	rm -rf dist-test
+#	mkdir dist-test
+#	cp dist/* dist-test
+#	cd dist-test; $(MAKE) print
+#	cd dist-test; $(MAKE) bochs || true
+#	cd dist-test; $(MAKE) qemu
+#
+### update this rule (change rev#) when it is time to
 # make a new revision.
-tar:
-	rm -rf /tmp/xv6
-	mkdir -p /tmp/xv6
-	cp dist/* dist/.gdbinit.tmpl /tmp/xv6
-	(cd /tmp; tar cf - xv6) | gzip >xv6-rev5.tar.gz
-
-.PHONY: dist-test dist
+#tar:
+#	rm -rf /tmp/xv6
+#	mkdir -p /tmp/xv6
+#	cp dist/* dist/.gdbinit.tmpl /tmp/xv6
+#	(cd /tmp; tar cf - xv6) | gzip >xv6-rev5.tar.gz
+#
+##.PHONY: dist-test dist
