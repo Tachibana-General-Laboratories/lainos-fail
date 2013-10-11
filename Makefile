@@ -53,7 +53,7 @@ kernel/kernel:
 
 # Утилита, которая делает fs.img
 mkfs: mkfs.c include/fs.h
-	gcc -Werror -Wall -o mkfs mkfs.c
+	gcc -Wall -o mkfs mkfs.c
 
 UPROGS = $(notdir $(wildcard apps/_*))
 $(FS_IMG): mkfs apps
