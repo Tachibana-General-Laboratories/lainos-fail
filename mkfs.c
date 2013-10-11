@@ -106,20 +106,17 @@ main(int argc, char *argv[]) {
 	rootino = ialloc(T_DIR);
 	assert(rootino == ROOTINO);
 
-	//bzero(&de, sizeof(de));
-	memset(&de, sizeof(de), 0);
+	memset(&de, 0, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, ".");
 	iappend(rootino, &de, sizeof(de));
 
-	//bzero(&de, sizeof(de));
-	memset(&de, sizeof(de), 0);
+	memset(&de, 0, sizeof(de));
 	de.inum = xshort(rootino);
 	strcpy(de.name, "..");
 	iappend(rootino, &de, sizeof(de));
 
 	for (i = 2; i < argc; i++) {
-		//assert(index(argv[i], '/') == 0);
 		assert(strchr(argv[i], '/') == 0);
 
 		if ((fd = open(argv[i], 0)) < 0) {
@@ -137,8 +134,7 @@ main(int argc, char *argv[]) {
 
 		inum = ialloc(T_FILE);
 
-		//bzero(&de, sizeof(de));
-		memset(&de, sizeof(de), 0);
+		memset(&de, 0, sizeof(de));
 		de.inum = xshort(inum);
 		strncpy(de.name, argv[i], DIRSIZ);
 		iappend(rootino, &de, sizeof(de));
@@ -223,8 +219,7 @@ ialloc(ushort type) {
 	uint inum = freeinode++;
 	struct dinode din;
 
-	//bzero(&din, sizeof(din));
-	memset(&din, sizeof(din), 0);
+	memset(&din, 0, sizeof(din));
 	din.type = xshort(type);
 	din.nlink = xshort(1);
 	din.size = xint(0);
@@ -239,8 +234,7 @@ balloc(int used) {
 
 	printf("balloc: first %d blocks have been allocated\n", used);
 	assert(used < 512 * 8);
-	//bzero(buf, 512);
-	memset(buf, 512, 0);
+	memset(buf, 0, 512);
 
 	for (i = 0; i < used; i++) {
 		buf[i / 8] = buf[i / 8] | (0x1 << (i % 8));
