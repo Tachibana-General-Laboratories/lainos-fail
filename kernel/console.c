@@ -54,7 +54,7 @@ printint(int xx, int base, int sign) {
 
 // Print to the console. only understands %d, %x, %p, %s.
 void
-cprintf(char *fmt, ...) {
+cprintf(const char *fmt, ...) {
 	int i, c, locking;
 	uint *argp;
 	char *s;
@@ -122,7 +122,7 @@ cprintf(char *fmt, ...) {
 }
 
 void
-panic(char *s) {
+panic(const char *s) {
 	int i;
 	uint pcs[10];
 
