@@ -11,37 +11,42 @@ static void mpmain(void)  __attribute__((noreturn));
 extern pde_t *kpgdir;
 extern char end[]; // first address after kernel loaded from ELF file
 
+#define BOOT_STEP(function, message...) \
+({ \
+    cprintf("" #function " " message "\n"); \
+    function; \
+})
+
 // Bootstrap processor starts running C code here.
 // Allocate a real stack and switch to it, first
 // doing some setup required for memory allocator to work.
 int
 main(void) {
-	kinit1(end, P2V(4 * 1024 * 1024)); // phys page allocator
-	kvmalloc();      // kernel page table
-	mpinit();        // collect info about this machine
-	lapicinit();
-	seginit();       // set up segments
+	BOOT_STEP(kinit1(end, P2V(4 * 1024 * 1024)), "// phys page allocator");
+	BOOT_STEP(kvmalloc(), "// kernel page table");
+	BOOT_STEP(mpinit(), "// collect info about this machine");
+	BOOT_STEP(lapicinit(), "");
+	BOOT_STEP(seginit(), "// set up segments");
 	cprintf("\ncpu%d: starting xv6\n\n", cpu->id);
-	picinit();       // interrupt controller
-	ioapicinit();    // another interrupt controller
-	consoleinit();   // I/O devices & their interrupts
-	uartinit();      // serial port
-	pinit();         // process table
-	tvinit();        // trap vectors
-	binit();         // buffer cache
-	fileinit();      // file table
-	iinit();         // inode cache
-	ideinit();       // disk
+	BOOT_STEP(picinit(), "// interrupt controller");
+	BOOT_STEP(ioapicinit(), "// another interrupt controller");
+	BOOT_STEP(consoleinit(), "// I/O devices & their interrupts");
+	BOOT_STEP(uartinit(), "// serial port");
+	BOOT_STEP(pinit(), "// process table");
+	BOOT_STEP(tvinit(), "// trap vectors");
+	BOOT_STEP(binit(), "// buffer cache");
+	BOOT_STEP(fileinit(), "// file table");
+	BOOT_STEP(iinit(), "// inode cache");
+	BOOT_STEP(ideinit(), "// disk");
 
 	if (!ismp) {
-		timerinit();    // uniprocessor timer
+		BOOT_STEP(timerinit(), "// uniprocessor timer");
 	}
 
-	startothers();   // start other processors
-	kinit2(P2V(4 * 1024 * 1024), P2V(PHYSTOP)); // must come after startothers()
-	userinit();      // first user process
-	// Finish setting up this processor in mpmain.
-	mpmain();
+	BOOT_STEP(startothers(), "// start other processors");
+	BOOT_STEP(kinit2(P2V(4 * 1024 * 1024), P2V(PHYSTOP)), "// must come after startothers()");
+	BOOT_STEP(userinit(), "// first user process");
+	BOOT_STEP(mpmain(), "// Finish setting up this processor in mpmain");
 }
 
 // Other CPUs jump here from entryother.S.
