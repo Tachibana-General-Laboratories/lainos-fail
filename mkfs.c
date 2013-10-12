@@ -291,8 +291,7 @@ iappend(uint inum, void *xp, int n) {
 
 		n1 = min(n, (fbn + 1) * 512 - off);
 		rsect(x, buf);
-		//bcopy(p, buf + off - (fbn * 512), n1);
-		memmove(p, buf + off - (fbn * 512), n1);
+		memcpy(buf + off - (fbn * 512), p, n1);
 		wsect(x, buf);
 		n -= n1;
 		off += n1;
