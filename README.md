@@ -19,7 +19,7 @@ make format      # форматирует исходники
 make apps        # собирает только приложения
 make kernel      # собирает только ядро
 make img         # собирает fs.img и kernel.img
-make qemu        # запустить эмулятор QEMU
+make qemu        # запускает эмулятор QEMU
 ```
 
 **Кроме того можно изменить путь к QEMU:**
