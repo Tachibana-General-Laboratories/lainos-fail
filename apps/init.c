@@ -11,9 +11,9 @@ int
 main(void) {
 	int pid, wpid;
 
-	if (open("console", O_RDWR) < 0) {
-		mknod("console", 1, 1);
-		open("console", O_RDWR);
+	if (open("/dev/console", O_RDWR) < 0) {
+		mknod("/dev/console", 1, 1);
+		open("/dev/console", O_RDWR);
 	}
 
 	dup(0);  // stdout
