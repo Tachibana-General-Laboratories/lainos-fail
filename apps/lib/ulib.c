@@ -26,7 +26,7 @@ strcmp(const char *p, const char *q) {
 }
 
 uint
-strlen(char *s) {
+strlen(const char *s) {
 	int n;
 
 	for (n = 0; s[n]; n++)
