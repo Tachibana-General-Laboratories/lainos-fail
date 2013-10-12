@@ -22,7 +22,9 @@
 *.swo
 
 # tmp
-.*
+fs/bin/*
+fs/init
+fs/sh
 *~
 _*
 *.d
