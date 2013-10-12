@@ -39,7 +39,7 @@ all: $(XV6_IMG)
 clean:
 	$(MAKE) -C apps clean
 	$(MAKE) -C kernel clean
-	rm -f .gdbinit mkfs
+	rm -f .gdbinit mkfs $(XV6_IMG) $(FS_IMG)
 
 apps:
 	$(MAKE) -C apps
