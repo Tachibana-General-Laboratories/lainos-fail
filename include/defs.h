@@ -16,9 +16,9 @@ void            bwrite(struct buf *);
 
 // console.c
 void            consoleinit(void);
-void            cprintf(char *, ...);
+void            cprintf(const char *, ...);
 void            consoleintr(int( *)(void));
-void            panic(char *) __attribute__((noreturn));
+void            panic(const char *) __attribute__((noreturn));
 
 // exec.c
 int             exec(char *, char **);
@@ -124,7 +124,7 @@ void            swtch(struct context **, struct context *);
 void            acquire(struct spinlock *);
 void            getcallerpcs(void *, uint *);
 int             holding(struct spinlock *);
-void            initlock(struct spinlock *, char *);
+void            initlock(struct spinlock *, const char *);
 void            release(struct spinlock *);
 void            pushcli(void);
 void            popcli(void);

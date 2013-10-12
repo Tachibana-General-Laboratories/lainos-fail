@@ -28,9 +28,10 @@ LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null)
 # Опции форматирования кода
 ASTYLEFLAGS := --style=attach --indent=force-tab --break-blocks --align-pointer=name --add-brackets --unpad-paren --pad-oper --pad-header
 
-XV6_IMG = build/xv6.img
-FS_IMG = build/fs.img
-#XV6MEMFS_IMG = build/xv6memfs.img
+XV6_IMG = xv6.img
+FS_IMG = fs.img
+FS_PATH = fs
+#XV6MEMFS_IMG = xv6memfs.img
 
 .PHONY: all clean format apps kernel
 
@@ -39,7 +40,8 @@ all: $(XV6_IMG)
 clean:
 	$(MAKE) -C apps clean
 	$(MAKE) -C kernel clean
-	rm -f .gdbinit mkfs
+	rm -f .gdbinit mkfs $(XV6_IMG) $(FS_IMG)
+	rm -rf $(FS_PATH)/bin/* $(FS_PATH)/init $(FS_PATH)/sh
 
 apps:
 	$(MAKE) -C apps
@@ -53,14 +55,22 @@ kernel/kernel:
 
 # Утилита, которая делает fs.img
 mkfs: mkfs.c include/fs.h
-	gcc -Werror -Wall -o mkfs mkfs.c
+	gcc -Wall -o mkfs mkfs.c
 
-UPROGS = $(notdir $(wildcard apps/_*))
-$(FS_IMG): mkfs apps
-	cd apps && ../mkfs ../$(FS_IMG) $(UPROGS)
+UPROGS = $(wildcard apps/_*)
+# подготавливает fs/bin
+fs_bin: apps
+	rm -rf $(FS_PATH)/bin/*
+	cp -f -t $(FS_PATH)/bin $(UPROGS)
+	cd $(FS_PATH)/bin && rename 's/_//' *
+	mv -f $(FS_PATH)/bin/init $(FS_PATH)
+	mv -f $(FS_PATH)/bin/sh $(FS_PATH)
+
+$(FS_IMG): mkfs fs_bin
+	./mkfs $(FS_IMG) $(FS_PATH)
 
 # img с ядром внутри
-$(XV6_IMG): kernel $(FS_IMG)
+$(XV6_IMG): kernel
 	dd if=/dev/zero of=$(XV6_IMG) count=10000
 	dd if=kernel/bootblock of=$(XV6_IMG) conv=notrunc
 	dd if=kernel/kernel of=$(XV6_IMG) seek=1 conv=notrunc
