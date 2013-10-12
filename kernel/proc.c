@@ -452,7 +452,7 @@ kill(int pid) {
 // No lock to avoid wedging a stuck machine further.
 void
 procdump(void) {
-	static char *states[] = {
+	static const char *states[] = {
 		[UNUSED]    "unused",
 		[EMBRYO]    "embryo",
 		[SLEEPING]  "sleep ",

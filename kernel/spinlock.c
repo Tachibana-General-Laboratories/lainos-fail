@@ -10,7 +10,7 @@
 #include "spinlock.h"
 
 void
-initlock(struct spinlock *lk, char *name) {
+initlock(struct spinlock *lk, const char *name) {
 	lk->name = name;
 	lk->locked = 0;
 	lk->cpu = 0;
