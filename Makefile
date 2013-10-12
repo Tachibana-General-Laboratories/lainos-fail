@@ -28,9 +28,9 @@ LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null)
 # Опции форматирования кода
 ASTYLEFLAGS := --style=attach --indent=force-tab --break-blocks --align-pointer=name --add-brackets --unpad-paren --pad-oper --pad-header
 
-XV6_IMG = build/xv6.img
-FS_IMG = build/fs.img
-#XV6MEMFS_IMG = build/xv6memfs.img
+XV6_IMG = xv6.img
+FS_IMG = fs.img
+#XV6MEMFS_IMG = xv6memfs.img
 
 .PHONY: all clean format apps kernel
 
