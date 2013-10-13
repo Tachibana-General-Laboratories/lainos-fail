@@ -46,5 +46,5 @@ _forktest: forktest.o $(ULIB)
 	$(OBJDUMP) -S _forktest > forktest.asm
 
 clean: 
-	rm -f *.o *.d *.asm *.sym $(UPROGS)
+	rm -f *.o *.d *.asm *.sym $(UPROGS) $(ULIB)
 
