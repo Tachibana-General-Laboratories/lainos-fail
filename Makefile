@@ -20,11 +20,6 @@ export CFLAGS = \
 export LDFLAGS = -nostdlib -z nodefaultlib -z max-page-size=0x1000
 export LDLIBS =
 
-# Некий хак. Пусть будет.
-CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
-# FreeBSD ld wants ``elf_i386_fbsd''
-LDFLAGS += -m $(shell $(LD) -V | grep elf_i386 2>/dev/null)
-
 # Опции эмуляции
 ifndef QEMU
 QEMU := qemu-system-i386
