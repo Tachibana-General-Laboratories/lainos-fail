@@ -1,6 +1,9 @@
 CFLAGS += -I ../include
 ASFLAGS += -I ../include
 
+CFLAGS += -I ../include/libc
+ASFLAGS += -I ../include/libc
+
 BUILD_DIR = ../build/apps
 
 # Объявляем те проги, которые нам нужны
@@ -18,6 +21,7 @@ UPROGS=\
 	_sh\
 	_stressfs\
 	_usertests\
+	_libctests\
 	_wc\
 	_zombie\
 
