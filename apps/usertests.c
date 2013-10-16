@@ -1854,13 +1854,6 @@ fsfull() {
 	printf(1, "fsfull test finished\n");
 }
 
-unsigned long randstate = 1;
-unsigned int
-rand() {
-	randstate = randstate * 1664525 + 1013904223;
-	return randstate;
-}
-
 int
 main(int argc, char *argv[]) {
 	printf(1, "usertests starting\n");
