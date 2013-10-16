@@ -6,6 +6,7 @@
 export CC = $(TOOLPREFIX)gcc
 export AS = $(TOOLPREFIX)gas
 export LD = $(TOOLPREFIX)ld
+export RANLIB = $(TOOLPREFIX)ranlib
 export OBJCOPY = $(TOOLPREFIX)objcopy
 export OBJDUMP = $(TOOLPREFIX)objdump
 
@@ -45,7 +46,7 @@ FS_PATH = fs
 # Далее идут цели компиляции
 ###
 
-.PHONY: all img clean format apps kernel fs_bin
+.PHONY: all img clean format apps kernel fs_bin libc
 
 # Главная цель
 all: img
@@ -53,6 +54,7 @@ all: img
 clean:
 	$(MAKE) -C apps clean
 	$(MAKE) -C kernel clean
+	$(MAKE) -C libc clean
 	rm -f .gdbinit mkfs $(KERNEL_IMG) $(FS_IMG)
 	rm -rf $(FS_PATH)/bin/* $(FS_PATH)/init $(FS_PATH)/sh
 # Форматирует весь код
@@ -75,8 +77,11 @@ $(KERNEL_IMG): kernel
 	dd if=kernel/kernel of=$(KERNEL_IMG) seek=1 conv=notrunc
 
 # Приложения
-apps:
+apps: libc
 	$(MAKE) -C apps
+# Библиотека C
+libc:
+	$(MAKE) -C libc
 
 # Файловая система
 $(FS_IMG): mkfs fs_bin
@@ -89,7 +94,7 @@ fs_bin: apps
 	mv -f $(FS_PATH)/bin/init $(FS_PATH)
 	mv -f $(FS_PATH)/bin/sh $(FS_PATH)
 # Утилита, которая делает fs.img
-mkfs: mkfs.c include/fs.h
+mkfs: mkfs.c include/sys/fs.h
 	gcc -Wall -o mkfs mkfs.c
 
 # Для файловой системы в памяти
