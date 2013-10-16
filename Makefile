@@ -94,7 +94,7 @@ fs_bin: apps
 	mv -f $(FS_PATH)/bin/init $(FS_PATH)
 	mv -f $(FS_PATH)/bin/sh $(FS_PATH)
 # Утилита, которая делает fs.img
-mkfs: mkfs.c include/fs.h
+mkfs: mkfs.c include/sys/fs.h
 	gcc -Wall -o mkfs mkfs.c
 
 # Для файловой системы в памяти

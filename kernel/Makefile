@@ -1,5 +1,5 @@
-CFLAGS += -I ../include
-ASFLAGS += -I ../include
+CFLAGS += -I ../include/sys
+ASFLAGS += -I ../include/sys
 
 all: bootblock kernel
 OBJS = \

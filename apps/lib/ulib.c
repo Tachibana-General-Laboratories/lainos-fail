@@ -1,8 +1,8 @@
-#include "types.h"
-#include "stat.h"
-#include "fcntl.h"
-#include "user.h"
-#include "x86.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/fcntl.h>
+#include <user.h>
+#include <sys/x86.h>
 
 char *
 strcpy(char *s, char *t) {
