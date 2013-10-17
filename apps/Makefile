@@ -7,6 +7,7 @@ ASFLAGS += -I ../include/libc
 BUILD_DIR = ../build/apps
 
 LDLIBS += ../libc/libc.a
+LDFLAGS += -T lib/link.ld
 
 # Объявляем те проги, которые нам нужны
 UPROGS=\
@@ -27,11 +28,11 @@ UPROGS=\
 	_wc\
 	_zombie\
 
-ULIB = lib/ulib.o lib/usys.o lib/printf.o
+ULIB = lib/_start.o lib/usys.o lib/ulib.o lib/printf.o
 
 # Далее идёт магия
 _%: %.o $(ULIB)
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^ $(LDLIBS)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
@@ -46,7 +47,7 @@ all: $(UPROGS)
 _forktest: forktest.o $(ULIB)
 	# forktest has less library code linked in - needs to be small
 	# in order to be able to max out the proc table.
-	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o _forktest forktest.o lib/ulib.o lib/usys.o $(LDLIBS)
+	$(LD) $(LDFLAGS) -o _forktest forktest.o lib/ulib.o lib/usys.o $(LDLIBS)
 
 clean: 
 	rm -f *.o *.d *.asm *.sym $(UPROGS) $(ULIB)
