@@ -13,10 +13,10 @@ QUAD = $(patsubst %.c, %.o, $(SOURCES_QUAD) )
 
 all: libc.a
 
-libc.a: $(OBJS) $(QUAD)
+libc.a: $(OBJS) $(QUAD) tss_errno/errno.o
 	$(AR) rc $@ $^
 	$(RANLIB) $@ 
 
 clean:
-	rm -rf $(OBJS) $(QUAD) libc.a
+	rm -rf $(OBJS) $(QUAD) tss_errno/errno.o libc.a
 
