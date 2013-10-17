@@ -78,8 +78,21 @@ runcmd(struct cmd *cmd) {
 			exit();
 		}
 
-		exec(ecmd->argv[0], ecmd->argv);
-		printf(2, "exec %s failed\n", ecmd->argv[0]);
+		// Тут магия с PATH
+		char path[512+5];
+		strncpy(path, ecmd->argv[0], 512);
+
+		int fd;
+		if (fd = open(path, O_RDONLY) < 0) {
+			strncpy(path, "/bin/", 512);
+			strncpy(path+5, ecmd->argv[0], 512);
+		} else {
+			close(fd);
+		}
+
+		exec(path, ecmd->argv);
+		printf(2, "exec %s failed\n", path);
+
 		break;
 
 	case REDIR:
