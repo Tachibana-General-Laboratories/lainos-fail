@@ -6,6 +6,7 @@
 #include <sys/fcntl.h>
 
 char *argv[] = { "sh", 0 };
+char *envp[] = {"PATH=/bin:", "USER=lain", 0};
 
 int
 main(void) {
@@ -29,7 +30,7 @@ main(void) {
 		}
 
 		if (pid == 0) {
-			exec("sh", argv);
+			execve("sh", argv, envp);
 			printf(1, "init: exec sh failed\n");
 			exit();
 		}

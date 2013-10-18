@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+extern char **environ;
+
 struct stat;
 
 // system calls
@@ -13,7 +15,10 @@ int write(int, void *, int);
 int read(int, void *, int);
 int close(int);
 int kill(int);
-int exec(const char *, char **);
+
+int execve(const char *, char **, char **);
+#define exec(pa, arg) execve(pa,arg,environ)
+
 int open(const char *, int);
 int mknod(const char *, short, short);
 int unlink(const char *);

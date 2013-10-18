@@ -1,4 +1,4 @@
-static char **environ;
+char **environ;
 
 extern int main(int, char **, char **);
 
