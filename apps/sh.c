@@ -1,8 +1,8 @@
 // Shell.
 
-#include "types.h"
-#include "user.h"
-#include "fcntl.h"
+#include <sys/types.h>
+#include <user.h>
+#include <sys/fcntl.h>
 
 // Parsed command representation
 #define EXEC  1
@@ -78,8 +78,22 @@ runcmd(struct cmd *cmd) {
 			exit();
 		}
 
-		exec(ecmd->argv[0], ecmd->argv);
-		printf(2, "exec %s failed\n", ecmd->argv[0]);
+		// Тут магия с PATH
+		char path[512 + 5];
+		strncpy(path, ecmd->argv[0], 512);
+
+		int fd;
+
+		if (fd = open(path, O_RDONLY) < 0) {
+			strncpy(path, "/bin/", 512);
+			strncpy(path + 5, ecmd->argv[0], 512);
+		} else {
+			close(fd);
+		}
+
+		exec(path, ecmd->argv);
+		printf(2, "exec %s failed\n", path);
+
 		break;
 
 	case REDIR:
@@ -166,7 +180,7 @@ main(void) {
 	int fd;
 
 	// Assumes three file descriptors open.
-	while ((fd = open("console", O_RDWR)) >= 0) {
+	while ((fd = open("/dev/console", O_RDWR)) >= 0) {
 		if (fd >= 3) {
 			close(fd);
 			break;

@@ -8,10 +8,10 @@
 #include "elf.h"
 
 int
-exec(char *path, char **argv) {
+execve(char *path, char **argv, char **env) {
 	char *s, *last;
 	int i, off;
-	uint argc, sz, sp, ustack[3 + MAXARG + 1];
+	uint argc, envc, sz, sp, ustack[4 + MAXARG * 2 + 2];
 	struct elfhdr elf;
 	struct inode *ip;
 	struct proghdr ph;
@@ -76,6 +76,53 @@ exec(char *path, char **argv) {
 	clearpteu(pgdir, (char *)(sz - 2 * PGSIZE));
 	sp = sz;
 
+	/*
+	 * Далее заполняется стек
+	 */
+
+	ustack[0] = 0xffffffff;  // fake return PC
+
+	// Добавляем содержимое env
+	// Push argument strings, prepare rest of stack in ustack.
+	for (envc = 0; env[envc]; envc++) {
+		if (i >= MAXARG) {
+			goto bad;
+		}
+
+		sp = (sp - (strlen(env[envc]) + 1)) & ~3;
+
+		if (copyout(pgdir, sp, env[envc], strlen(env[envc]) + 1) < 0) {
+			goto bad;
+		}
+
+		ustack[5 + envc] = sp;
+	}
+
+	ustack[3] = sp - (envc + 1) * 4; // env pointer
+
+	ustack[5 + envc] = 0;
+	sp -= (5 + envc + 1) * 4;
+
+	// Ахтунг! Здесь именно 4.
+	if (copyout(pgdir, sp, ustack, (4 + envc + 1) * 4) < 0) {
+		goto bad;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	// Добавляем содержимое argv
 	// Push argument strings, prepare rest of stack in ustack.
 	for (argc = 0; argv[argc]; argc++) {
 		if (argc >= MAXARG) {
@@ -88,20 +135,20 @@ exec(char *path, char **argv) {
 			goto bad;
 		}
 
-		ustack[3 + argc] = sp;
+		ustack[4 + argc] = sp;
 	}
 
-	ustack[3 + argc] = 0;
-
-	ustack[0] = 0xffffffff;  // fake return PC
 	ustack[1] = argc;
 	ustack[2] = sp - (argc + 1) * 4; // argv pointer
 
-	sp -= (3 + argc + 1) * 4;
+	ustack[4 + argc] = 0;
+	sp -= (4 + argc + 1) * 4;
 
-	if (copyout(pgdir, sp, ustack, (3 + argc + 1) * 4) < 0) {
+	if (copyout(pgdir, sp, ustack, (4 + argc + 1) * 4) < 0) {
 		goto bad;
 	}
+
+	/* Закончили заполнять стек */
 
 	// Save program name for debugging.
 	for (last = s = path; *s; s++)

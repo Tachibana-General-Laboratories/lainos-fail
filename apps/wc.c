@@ -1,6 +1,6 @@
-#include "types.h"
-#include "stat.h"
-#include "user.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <user.h>
 
 char buf[512];
 

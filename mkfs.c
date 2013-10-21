@@ -9,13 +9,12 @@
 #include <dirent.h>
 #include <stdbool.h>
 
-
 #define stat xv6_stat  // avoid clash with host struct stat
 #define dirent xv6_dirent  // avoid clash with host struct stat
-#include "include/types.h"
-#include "include/fs.h"
-#include "include/stat.h"
-#include "include/param.h"
+#include "include/sys/types.h"
+#include "include/sys/fs.h"
+#include "include/sys/stat.h"
+#include "include/sys/param.h"
 #undef stat
 #undef dirent
 
@@ -151,6 +150,10 @@ add_dir(DIR *cur_dir, int cur_inode, int parent_inode) {
 			continue;
 		}
 
+		if (entry->d_name[0] == '.') {
+			continue;
+		}
+
 		printf("entry %s\t", entry->d_name);
 
 		child_fd = open(entry->d_name, O_RDONLY);
@@ -197,6 +200,11 @@ add_dir(DIR *cur_dir, int cur_inode, int parent_inode) {
 
 		de.inum = xshort(child_inode);
 		strncpy(de.name, entry->d_name, DIRSIZ);
+
+		if (de.name[0] == '_') {
+			de.name[0] = '.';
+		}
+
 		iappend(cur_inode, &de, sizeof(de));
 	}
 

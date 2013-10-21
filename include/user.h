@@ -1,3 +1,9 @@
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+
+extern char **environ;
+
 struct stat;
 
 // system calls
@@ -9,7 +15,10 @@ int write(int, void *, int);
 int read(int, void *, int);
 int close(int);
 int kill(int);
-int exec(const char *, char **);
+
+int execve(const char *, char **, char **);
+#define exec(pa, arg) execve(pa,arg,environ)
+
 int open(const char *, int);
 int mknod(const char *, short, short);
 int unlink(const char *);
@@ -25,14 +34,11 @@ int uptime(void);
 
 // ulib.c
 int stat(char *, struct stat *);
-char *strcpy(char *, char *);
-void *memmove(void *, void *, int);
-char *strchr(const char *, char c);
-int strcmp(const char *, const char *);
 void printf(int, const char *, ...);
 char *gets(char *, int max);
-uint strlen(const char *);
-void *memset(void *, int, uint);
-void *malloc(uint);
-void free(void *);
-int atoi(const char *);
+
+char *getenv(const char *name);
+int putenv(char *string);
+int setenv(const char *name, const char *value, int overwrite);
+int unsetenv(const char *name);
+

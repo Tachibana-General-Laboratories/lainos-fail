@@ -1,19 +1,20 @@
 // init: The initial user-level program
 
-#include "types.h"
-#include "stat.h"
-#include "user.h"
-#include "fcntl.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <user.h>
+#include <sys/fcntl.h>
 
 char *argv[] = { "sh", 0 };
+char *envp[] = {"PATH=/bin:", "USER=lain", 0};
 
 int
 main(void) {
 	int pid, wpid;
 
-	if (open("console", O_RDWR) < 0) {
-		mknod("console", 1, 1);
-		open("console", O_RDWR);
+	if (open("/dev/console", O_RDWR) < 0) {
+		mknod("/dev/console", 1, 1);
+		open("/dev/console", O_RDWR);
 	}
 
 	dup(0);  // stdout
@@ -29,7 +30,7 @@ main(void) {
 		}
 
 		if (pid == 0) {
-			exec("sh", argv);
+			execve("sh", argv, envp);
 			printf(1, "init: exec sh failed\n");
 			exit();
 		}

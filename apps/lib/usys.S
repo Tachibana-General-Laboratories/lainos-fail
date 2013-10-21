@@ -1,5 +1,5 @@
-#include "syscall.h"
-#include "traps.h"
+#include <sys/syscall.h>
+#include <sys/traps.h>
 
 #define SYSCALL(name) \
   .globl name; \
@@ -16,7 +16,7 @@ SYSCALL(read)
 SYSCALL(write)
 SYSCALL(close)
 SYSCALL(kill)
-SYSCALL(exec)
+SYSCALL(execve)
 SYSCALL(open)
 SYSCALL(mknod)
 SYSCALL(unlink)
