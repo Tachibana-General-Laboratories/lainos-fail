@@ -200,9 +200,11 @@ add_dir(DIR *cur_dir, int cur_inode, int parent_inode) {
 
 		de.inum = xshort(child_inode);
 		strncpy(de.name, entry->d_name, DIRSIZ);
-		if(de.name[0] == '_') {
+
+		if (de.name[0] == '_') {
 			de.name[0] = '.';
 		}
+
 		iappend(cur_inode, &de, sizeof(de));
 	}
 

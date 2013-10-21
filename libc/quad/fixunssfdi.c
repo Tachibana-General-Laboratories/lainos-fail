@@ -14,19 +14,26 @@
  * N.B.: must use new ANSI syntax (sorry).
  */
 u_quad_t
-__fixunssfdi(float f)
-{
+__fixunssfdi(float f) {
 	double x, toppart;
 	union uu t;
 
-	if (f < 0)
-		return (UQUAD_MAX);	/* ??? should be 0?  ERANGE??? */
+	if (f < 0) {
+		return (UQUAD_MAX);    /* ??? should be 0?  ERANGE??? */
+	}
+
 #ifdef notdef				/* this falls afoul of a GCC bug */
-	if (f >= UQUAD_MAX)
+
+	if (f >= UQUAD_MAX) {
 		return (UQUAD_MAX);
+	}
+
 #else					/* so we wire in 2^64-1 instead */
-	if (f >= 18446744073709551615.0)	/* XXX */
+
+	if (f >= 18446744073709551615.0) {	/* XXX */
 		return (UQUAD_MAX);
+	}
+
 #endif
 	x = f;
 	/*
@@ -46,14 +53,17 @@ __fixunssfdi(float f)
 	t.ul[H] = (unsigned int)toppart;
 	t.ul[L] = 0;
 	x -= (double)t.uq;
+
 	if (x < 0) {
 		t.ul[H]--;
 		x += UINT_MAX;
 	}
+
 	if (x > UINT_MAX) {
 		t.ul[H]++;
 		x -= UINT_MAX;
 	}
+
 	t.ul[L] = (u_int)x;
 	return (t.uq);
 }

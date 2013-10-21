@@ -4,8 +4,7 @@
  * Convert (signed) quad to double.
  */
 double
-__floatdidf(quad_t x)
-{
+__floatdidf(quad_t x) {
 	double d;
 	union uu u;
 	int neg;
@@ -13,10 +12,11 @@ __floatdidf(quad_t x)
 	/*
 	 * Get an unsigned number first, by negating if necessary.
 	 */
-	if (x < 0)
+	if (x < 0) {
 		u.q = -x, neg = 1;
-	else
+	} else {
 		u.q = x, neg = 0;
+	}
 
 	/*
 	 * Now u.ul[H] has the factor of 2^32 (or whatever) and u.ul[L]

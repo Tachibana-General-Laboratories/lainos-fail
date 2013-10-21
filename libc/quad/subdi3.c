@@ -5,8 +5,7 @@
  * from a single u_int difference x-y occurs if and only if (x-y) > x.
  */
 quad_t
-__subdi3(quad_t a, quad_t b)
-{
+__subdi3(quad_t a, quad_t b) {
 	union uu aa, bb, diff;
 
 	aa.q = a;

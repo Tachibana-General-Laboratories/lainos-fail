@@ -4,13 +4,15 @@
  * Shift a (signed) quad value right (arithmetic shift right).
  */
 quad_t
-__ashrdi3(quad_t a, qshift_t shift)
-{
+__ashrdi3(quad_t a, qshift_t shift) {
 	union uu aa;
 
-	if (shift == 0)
-		return(a);
+	if (shift == 0) {
+		return (a);
+	}
+
 	aa.q = a;
+
 	if (shift >= INT_BITS) {
 		int s;
 
@@ -28,9 +30,10 @@ __ashrdi3(quad_t a, qshift_t shift)
 		aa.ul[H] = s;
 	} else {
 		aa.ul[L] = (aa.ul[L] >> shift) |
-		    (aa.ul[H] << (INT_BITS - shift));
+				   (aa.ul[H] << (INT_BITS - shift));
 		/* LINTED inherits machine dependency */
 		aa.sl[H] >>= shift;
 	}
+
 	return (aa.q);
 }

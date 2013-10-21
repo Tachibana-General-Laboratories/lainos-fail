@@ -26,6 +26,7 @@ void *bsearch(const void *key, const void *base, size_t nmemb, size_t size, int 
 
 static inline void memswp(char *i, char *j, size_t size) {
 	char tmp;
+
 	do {
 		tmp = *i;
 		*i++ = *j;

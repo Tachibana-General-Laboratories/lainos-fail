@@ -5,8 +5,7 @@
  * This is exactly like floatdidf.c except that negatives never occur.
  */
 double
-__floatunsdidf(u_quad_t x)
-{
+__floatunsdidf(u_quad_t x) {
 	double d;
 	union uu u;
 

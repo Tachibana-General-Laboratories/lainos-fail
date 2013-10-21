@@ -10,19 +10,26 @@
  * of range becomes UQUAD_MAX.
  */
 u_quad_t
-__fixunsdfdi(double x)
-{
+__fixunsdfdi(double x) {
 	union uu t;
 	unsigned int tmp;
 
-	if (x < 0)
-		return (UQUAD_MAX);	/* ??? should be 0?  ERANGE??? */
+	if (x < 0) {
+		return (UQUAD_MAX);    /* ??? should be 0?  ERANGE??? */
+	}
+
 #ifdef notdef				/* this falls afoul of a GCC bug */
-	if (x >= UQUAD_MAX)
+
+	if (x >= UQUAD_MAX) {
 		return (UQUAD_MAX);
+	}
+
 #else					/* so we wire in 2^64-1 instead */
-	if (x >= 18446744073709551615.0)	/* XXX */
+
+	if (x >= 18446744073709551615.0) {	/* XXX */
 		return (UQUAD_MAX);
+	}
+
 #endif
 	/*
 	 * Now we know that 0 <= x <= 18446744073709549568.  The upper
@@ -32,7 +39,7 @@ __fixunsdfdi(double x)
 	 * Furthermore, the quotient will fit into a 32-bit integer.
 	 */
 	tmp = x / ONE;
-	t.ul[L] = (unsigned int) (x - tmp * ONE);
+	t.ul[L] = (unsigned int)(x - tmp * ONE);
 	t.ul[H] = tmp;
 	return (t.uq);
 }

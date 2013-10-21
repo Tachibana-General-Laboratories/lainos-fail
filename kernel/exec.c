@@ -11,7 +11,7 @@ int
 execve(char *path, char **argv, char **env) {
 	char *s, *last;
 	int i, off;
-	uint argc, envc, sz, sp, ustack[4 + MAXARG*2 + 2];
+	uint argc, envc, sz, sp, ustack[4 + MAXARG * 2 + 2];
 	struct elfhdr elf;
 	struct inode *ip;
 	struct proghdr ph;
@@ -148,7 +148,7 @@ execve(char *path, char **argv, char **env) {
 		goto bad;
 	}
 
-/* Закончили заполнять стек */
+	/* Закончили заполнять стек */
 
 	// Save program name for debugging.
 	for (last = s = path; *s; s++)

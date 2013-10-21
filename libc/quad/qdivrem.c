@@ -17,7 +17,7 @@ typedef unsigned short digit;
 typedef u_int digit;
 #endif
 
-static void shl (digit *p, int len, int sh);
+static void shl(digit *p, int len, int sh);
 
 /*
  * __qdivrem(u, v, rem) returns u/v and, optionally, sets *rem to u%v.
@@ -28,8 +28,7 @@ static void shl (digit *p, int len, int sh);
  * leading zeros).
  */
 u_quad_t
-__qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
-{
+__qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq) {
 	union uu tmp;
 	digit *u, *v, *q;
 	digit v1, v2;
@@ -45,15 +44,22 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		static volatile const unsigned int zero = 0;
 
 		tmp.ul[H] = tmp.ul[L] = 1 / zero;
-		if (arq)
+
+		if (arq) {
 			*arq = uq;
+		}
+
 		return (tmp.q);
 	}
+
 	if (uq < vq) {
-		if (arq)
+		if (arq) {
 			*arq = uq;
+		}
+
 		return (0);
 	}
+
 	u = &uspace[0];
 	v = &vspace[0];
 	q = &qspace[0];
@@ -82,6 +88,7 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	v[2] = (digit)LHALF(tmp.ul[H]);
 	v[3] = (digit)HHALF(tmp.ul[L]);
 	v[4] = (digit)LHALF(tmp.ul[L]);
+
 	for (n = 4; v[1] == 0; v++) {
 		if (--n == 1) {
 			u_int rbj;	/* r*B+u[j] (not root boy jim) */
@@ -103,8 +110,11 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 			q3 = (digit)(rbj / t);
 			rbj = COMBINE(rbj % t, u[4]);
 			q4 = (digit)(rbj / t);
-			if (arq)
+
+			if (arq) {
 				*arq = rbj % t;
+			}
+
 			tmp.ul[H] = COMBINE(q1, q2);
 			tmp.ul[L] = COMBINE(q3, q4);
 			return (tmp.q);
@@ -116,10 +126,14 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	 * there is a complete four-digit quotient at &qspace[1] when
 	 * we finally stop.
 	 */
-	for (m = 4 - n; u[1] == 0; u++)
+	for (m = 4 - n; u[1] == 0; u++) {
 		m--;
-	for (i = 4 - m; --i >= 0;)
+	}
+
+	for (i = 4 - m; --i >= 0;) {
 		q[i] = 0;
+	}
+
 	q += 4 - m;
 
 	/*
@@ -129,21 +143,26 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	 * D1: choose multiplier 1 << d to ensure v[1] >= B/2.
 	 */
 	d = 0;
-	for (t = v[1]; t < B / 2; t <<= 1)
+
+	for (t = v[1]; t < B / 2; t <<= 1) {
 		d++;
+	}
+
 	if (d > 0) {
 		shl(&u[0], m + n, d);		/* u <<= d */
 		shl(&v[1], n - 1, d);		/* v <<= d */
 	}
+
 	/*
 	 * D2: j = 0.
 	 */
 	j = 0;
 	v1 = v[1];	/* for D3 -- note that v[1..n] are constant */
 	v2 = v[2];	/* for D3 */
+
 	do {
 		digit uj0, uj1, uj2;
-		
+
 		/*
 		 * D3: Calculate qhat (\^q, in TeX notation).
 		 * Let qhat = min((u[j]*B + u[j+1])/v[1], B-1), and
@@ -155,6 +174,7 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		uj0 = u[j + 0];	/* for D3 only -- note that u[j+...] change */
 		uj1 = u[j + 1];	/* for D3 only */
 		uj2 = u[j + 2];	/* for D3 only */
+
 		if (uj0 == v1) {
 			qhat = B;
 			rhat = uj1;
@@ -164,12 +184,16 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 			qhat = nn / v1;
 			rhat = nn % v1;
 		}
+
 		while (v2 * qhat > COMBINE(rhat, uj2)) {
-	qhat_too_big:
+qhat_too_big:
 			qhat--;
-			if ((rhat += v1) >= B)
+
+			if ((rhat += v1) >= B) {
 				break;
+			}
 		}
+
 		/*
 		 * D4: Multiply and subtract.
 		 * The variable `t' holds any borrows across the loop.
@@ -181,8 +205,10 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 			u[i + j] = (digit)LHALF(t);
 			t = (B - HHALF(t)) & (B - 1);
 		}
+
 		t = u[j] - t;
 		u[j] = (digit)LHALF(t);
+
 		/*
 		 * D5: test remainder.
 		 * There is a borrow if and only if HHALF(t) is nonzero;
@@ -191,13 +217,16 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		 */
 		if (HHALF(t)) {
 			qhat--;
+
 			for (t = 0, i = n; i > 0; i--) { /* D6: add back. */
 				t += u[i + j] + v[i];
 				u[i + j] = (digit)LHALF(t);
 				t = HHALF(t);
 			}
+
 			u[j] = (digit)LHALF(u[j] + t);
 		}
+
 		q[j] = (digit)qhat;
 	} while (++j <= m);		/* D7: loop on j. */
 
@@ -210,9 +239,11 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		if (d) {
 			for (i = m + n; i > m; --i)
 				u[i] = (digit)(((u_int)u[i] >> d) |
-				    LHALF((u_int)u[i - 1] << (HALF_BITS - d)));
+							   LHALF((u_int)u[i - 1] << (HALF_BITS - d)));
+
 			u[i] = 0;
 		}
+
 		tmp.ul[H] = COMBINE(uspace[1], uspace[2]);
 		tmp.ul[L] = COMBINE(uspace[3], uspace[4]);
 		*arq = tmp.q;
@@ -229,12 +260,12 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
  * We may assume len >= 0.  NOTE THAT THIS WRITES len+1 DIGITS.
  */
 static void
-shl(digit *p, int len, int sh)
-{
+shl(digit *p, int len, int sh) {
 	int i;
 
 	for (i = 0; i < len; i++)
 		p[i] = (digit)(LHALF((u_int)p[i] << sh) |
-		    ((u_int)p[i + 1] >> (HALF_BITS - sh)));
+					   ((u_int)p[i + 1] >> (HALF_BITS - sh)));
+
 	p[i] = (digit)(LHALF((u_int)p[i] << sh));
 }

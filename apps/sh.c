@@ -79,13 +79,14 @@ runcmd(struct cmd *cmd) {
 		}
 
 		// Тут магия с PATH
-		char path[512+5];
+		char path[512 + 5];
 		strncpy(path, ecmd->argv[0], 512);
 
 		int fd;
+
 		if (fd = open(path, O_RDONLY) < 0) {
 			strncpy(path, "/bin/", 512);
-			strncpy(path+5, ecmd->argv[0], 512);
+			strncpy(path + 5, ecmd->argv[0], 512);
 		} else {
 			close(fd);
 		}

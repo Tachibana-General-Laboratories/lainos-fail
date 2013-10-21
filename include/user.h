@@ -37,3 +37,8 @@ int stat(char *, struct stat *);
 void printf(int, const char *, ...);
 char *gets(char *, int max);
 
+char *getenv(const char *name);
+int putenv(char *string);
+int setenv(const char *name, const char *value, int overwrite);
+int unsetenv(const char *name);
+

@@ -19,13 +19,13 @@
 
 /* Quad constants must be written as expressions; #define GCC_ME_HARDER. */
 #define	UQUAD_MAX	((u_quad_t)0-1)	/* max value for a uquad_t */
-					/* max value for a quad_t */
+/* max value for a quad_t */
 #define	QUAD_MAX	((quad_t)(UQUAD_MAX >> 1))
 #define	QUAD_MIN	(-QUAD_MAX-1)	/* min value for a quad_t */
 
 typedef unsigned long long u_quad_t;    /* quads */
 typedef long long quad_t;
-typedef quad_t * qaddr_t;
+typedef quad_t *qaddr_t;
 typedef unsigned long u_int;
 typedef unsigned long uint;
 
@@ -96,6 +96,6 @@ quad_t __one_cmpldi2(quad_t);
 u_quad_t __qdivrem(u_quad_t, u_quad_t, u_quad_t *);
 quad_t __subdi3(quad_t, quad_t);
 int __ucmpdi2(u_quad_t, u_quad_t);
-u_quad_t __udivdi3(u_quad_t, u_quad_t );
-u_quad_t __umoddi3(u_quad_t, u_quad_t );
+u_quad_t __udivdi3(u_quad_t, u_quad_t);
+u_quad_t __umoddi3(u_quad_t, u_quad_t);
 quad_t __xordi3(quad_t, quad_t);

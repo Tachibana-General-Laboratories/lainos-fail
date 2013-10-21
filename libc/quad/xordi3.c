@@ -4,8 +4,7 @@
  * Return a ^ b, in quad.
  */
 quad_t
-__xordi3(quad_t a, quad_t b)
-{
+__xordi3(quad_t a, quad_t b) {
 	union uu aa, bb;
 
 	aa.q = a;

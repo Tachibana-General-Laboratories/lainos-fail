@@ -8,7 +8,7 @@
  *
  *	u = 2^n u1  *  u0	(n = number of bits in `u_int', usu. 32)
  *
- * and 
+ * and
  *
  *	v = 2^n v1  *  v0
  *
@@ -61,7 +61,7 @@ static quad_t __lmulq(u_int, u_int);
 
 quad_t
 __muldi3(a, b)
-	quad_t a, b;
+quad_t a, b;
 {
 	union uu u, v, low, prod;
 	u_int high, mid, udiff, vdiff;
@@ -76,14 +76,17 @@ __muldi3(a, b)
 	 * u1, u0, v1, and v0 will be directly accessible through the
 	 * int fields.
 	 */
-	if (a >= 0)
+	if (a >= 0) {
 		u.q = a, negall = 0;
-	else
+	} else {
 		u.q = -a, negall = 1;
-	if (b >= 0)
+	}
+
+	if (b >= 0) {
 		v.q = b;
-	else
+	} else {
 		v.q = -b, negall ^= 1;
+	}
 
 	if (u1 == 0 && v1 == 0) {
 		/*
@@ -101,14 +104,18 @@ __muldi3(a, b)
 		 */
 		low.q = __lmulq(u0, v0);
 
-		if (u1 >= u0)
+		if (u1 >= u0) {
 			negmid = 0, udiff = u1 - u0;
-		else
+		} else {
 			negmid = 1, udiff = u0 - u1;
-		if (v0 >= v1)
+		}
+
+		if (v0 >= v1) {
 			vdiff = v0 - v1;
-		else
+		} else {
 			vdiff = v1 - v0, negmid ^= 1;
+		}
+
 		mid = udiff * vdiff;
 
 		high = u1 * v1;
@@ -117,9 +124,10 @@ __muldi3(a, b)
 		 * Assemble the final product.
 		 */
 		prod.ul[H] = high + (negmid ? -mid : mid) + low.ul[L] +
-		    low.ul[H];
+					 low.ul[H];
 		prod.ul[L] = low.ul[L];
 	}
+
 	return (negall ? -prod.q : prod.q);
 #undef u1
 #undef u0
@@ -145,8 +153,7 @@ __muldi3(a, b)
  * splits into high and low ints as HHALF(l) and LHUP(l) respectively.
  */
 static quad_t
-__lmulq(u_int u, u_int v)
-{
+__lmulq(u_int u, u_int v) {
 	u_int u1, u0, v1, v0, udiff, vdiff, high, mid, low;
 	u_int prodh, prodl, was;
 	union uu prod;
@@ -160,17 +167,22 @@ __lmulq(u_int u, u_int v)
 	low = u0 * v0;
 
 	/* This is the same small-number optimization as before. */
-	if (u1 == 0 && v1 == 0)
+	if (u1 == 0 && v1 == 0) {
 		return (low);
+	}
 
-	if (u1 >= u0)
+	if (u1 >= u0) {
 		udiff = u1 - u0, neg = 0;
-	else
+	} else {
 		udiff = u0 - u1, neg = 1;
-	if (v0 >= v1)
+	}
+
+	if (v0 >= v1) {
 		vdiff = v0 - v1;
-	else
+	} else {
 		vdiff = v1 - v0, neg ^= 1;
+	}
+
 	mid = udiff * vdiff;
 
 	high = u1 * v1;
@@ -194,9 +206,11 @@ __lmulq(u_int u, u_int v)
 	was = prodl;
 	prodl += LHUP(low);
 	prodh += HHALF(low) + (prodl < was);
+
 	/* ... + low; */
-	if ((prodl += low) < low)
+	if ((prodl += low) < low) {
 		prodh++;
+	}
 
 	/* return 4N-bit product */
 	prod.ul[H] = prodh;

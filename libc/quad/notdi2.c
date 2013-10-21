@@ -5,8 +5,7 @@
  * than `not'.
  */
 quad_t
-__one_cmpldi2(quad_t a)
-{
+__one_cmpldi2(quad_t a) {
 	union uu aa;
 
 	aa.q = a;
