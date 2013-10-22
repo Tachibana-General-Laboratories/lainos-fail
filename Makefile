@@ -46,7 +46,7 @@ FS_PATH = fs
 # Далее идут цели компиляции
 ###
 
-.PHONY: all img clean format apps kernel fs_bin libc
+.PHONY: all img clean format apps kernel fs_bin libc mkfs
 
 # Главная цель
 all: img
@@ -55,6 +55,7 @@ clean:
 	$(MAKE) -C apps clean
 	$(MAKE) -C kernel clean
 	$(MAKE) -C libc clean
+	$(MAKE) -C mkfs clean
 	rm -f .gdbinit mkfs $(KERNEL_IMG) $(FS_IMG)
 	rm -rf $(FS_PATH)/bin/* $(FS_PATH)/init $(FS_PATH)/sh
 # Форматирует весь код
@@ -82,10 +83,13 @@ apps: libc
 # Библиотека C
 libc:
 	$(MAKE) -C libc
+# Утилита, которая делает fs.img
+mkfs:
+	$(MAKE) -C mkfs
 
 # Файловая система
 $(FS_IMG): mkfs fs_bin
-	./mkfs $(FS_IMG) $(FS_PATH)
+	mkfs/mkfs $(FS_IMG) $(FS_PATH)
 # подготавливает fs/bin
 fs_bin: apps
 	rm -rf $(FS_PATH)/bin/*
@@ -93,9 +97,6 @@ fs_bin: apps
 	cd $(FS_PATH)/bin && rename 's/_//' *
 	mv -f $(FS_PATH)/bin/init $(FS_PATH)
 	mv -f $(FS_PATH)/bin/sh $(FS_PATH)
-# Утилита, которая делает fs.img
-mkfs: mkfs.c include/sys/fs.h
-	gcc -Wall -o mkfs mkfs.c
 
 # Для файловой системы в памяти
 # Не работает в данынй момент
