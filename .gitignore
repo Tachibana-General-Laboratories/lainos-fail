@@ -38,6 +38,6 @@ kernel/initcode
 kernel/initcode.out
 kernel/kernel
 kernel/kernelmemfs
-mkfs
+mkfs/mkfs
 .gdbinit
 
