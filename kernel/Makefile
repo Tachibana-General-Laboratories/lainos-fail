@@ -9,10 +9,10 @@ OBJS = \
 	syscall/syscall.o\
 	syscall/sysfile.o\
 	syscall/sysproc.o\
+	fs/bio.o\
 	fs/file.o\
 	fs/fs.o\
 	fs/pipe.o\
-	bio.o\
 	exec.o\
 	ide.o\
 	ioapic.o\
