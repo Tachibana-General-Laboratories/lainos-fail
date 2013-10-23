@@ -2,7 +2,7 @@
 
 all: mkfs
 
-mkfs: mkfs.c ../include/sys/fs.h
+mkfs: mkfs.c fsutil.c ../include/sys/fs.h
 	gcc -I .. -I -Wall -o mkfs mkfs.c
 
 clean:

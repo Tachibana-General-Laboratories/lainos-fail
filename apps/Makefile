@@ -23,11 +23,11 @@ UPROGS=\
 	_sh\
 	_wc\
 	_zombie\
-	#_libctests\
-	#_forktest\
-	#_stressfs\
-	#_usertests\
-	#_libctests\
+	_libctests\
+	_forktest\
+	_stressfs\
+	_usertests\
+	_libctests\
 
 ULIB = lib/_start.o lib/usys.o lib/ulib.o lib/printf.o
 

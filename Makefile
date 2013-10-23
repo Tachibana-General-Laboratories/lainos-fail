@@ -56,7 +56,7 @@ clean:
 	$(MAKE) -C kernel clean
 	$(MAKE) -C libc clean
 	$(MAKE) -C mkfs clean
-	rm -f .gdbinit mkfs $(KERNEL_IMG) $(FS_IMG)
+	rm -f .gdbinit $(KERNEL_IMG) $(FS_IMG)
 	rm -rf $(FS_PATH)/bin/* $(FS_PATH)/init $(FS_PATH)/sh
 # Форматирует весь код
 format:
