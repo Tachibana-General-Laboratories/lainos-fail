@@ -46,6 +46,7 @@ main(void) {
 	BOOT_STEP(startothers(), "// start other processors");
 	BOOT_STEP(kinit2(P2V(4 * 1024 * 1024), P2V(PHYSTOP)), "// must come after startothers()");
 	BOOT_STEP(userinit(), "// first user process");
+	BOOT_STEP(test_vbe(), "// VBE!!!!!!!!11111111111");
 	BOOT_STEP(mpmain(), "// Finish setting up this processor in mpmain");
 }
 

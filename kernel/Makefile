@@ -4,6 +4,7 @@ ASFLAGS += -I ../include/sys
 all: bootblock kernel
 OBJS = \
 	console/console.o\
+	console/cga.o\
 	console/kbd.o\
 	console/uart.o\
 	syscall/syscall.o\
@@ -13,6 +14,15 @@ OBJS = \
 	fs/file.o\
 	fs/fs.o\
 	fs/pipe.o\
+	video/vbe.o\
+	video/x86emu/setjmp.o\
+	video/x86emu/x86emu.o\
+	video/x86emu/x86emu_util.o\
+	video/x86emu/divdi3.o\
+	video/x86emu/moddi3.o\
+	video/x86emu/udivdi3.o\
+	video/x86emu/umoddi3.o\
+	video/x86emu/qdivrem.o\
 	exec.o\
 	ide.o\
 	ioapic.o\
@@ -37,7 +47,7 @@ bootblock: bootasm.S bootmain.c
 	$(CC) $(CFLAGS) -fno-pic -O -nostdinc -I. -c bootmain.c
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I. -c bootasm.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 -o bootblock.o bootasm.o bootmain.o
-	$(OBJDUMP) -S bootblock.o > bootblock.asm
+	#$(OBJDUMP) -S bootblock.o > bootblock.asm
 	$(OBJCOPY) -S -O binary -j .text bootblock.o bootblock
 	./sign.pl bootblock
 
@@ -45,18 +55,18 @@ entryother: entryother.S
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I. -c entryother.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0x7000 -o bootblockother.o entryother.o
 	$(OBJCOPY) -S -O binary -j .text bootblockother.o entryother
-	$(OBJDUMP) -S bootblockother.o > entryother.asm
+	#$(OBJDUMP) -S bootblockother.o > entryother.asm
 
 initcode: initcode.S
 	$(CC) $(CFLAGS) -nostdinc -I. -c initcode.S
 	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o initcode.out initcode.o
 	$(OBJCOPY) -S -O binary initcode.out initcode
-	$(OBJDUMP) -S initcode.o > initcode.asm
+	#$(OBJDUMP) -S initcode.o > initcode.asm
 
 # Ядро
 kernel: $(OBJS) entry.o entryother initcode kernel.ld
 	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) -b binary initcode entryother
-	$(OBJDUMP) -S kernel > kernel.asm
+	#$(OBJDUMP) -S kernel > kernel.asm
 	$(OBJDUMP) -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
 
@@ -83,6 +93,6 @@ vectors.S: vectors.pl
 -include *.d
 
 clean: 
-	rm -f *.o *.d *.asm *.sym vectors.S bootblock entryother \
+	rm -f $(OBJS) *.o *.d *.asm *.sym vectors.S bootblock entryother \
 	initcode initcode.out kernel kernelmemfs
 

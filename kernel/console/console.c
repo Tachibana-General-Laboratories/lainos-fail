@@ -324,8 +324,12 @@ consolewrite(struct inode *ip, char *buf, int off, int n) {
 	return n;
 }
 
+extern void cgainit();
+
 void
 consoleinit(void) {
+	cgainit();
+
 	initlock(&cons.lock, "console");
 	initlock(&input.lock, "input");
 
