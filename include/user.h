@@ -32,6 +32,11 @@ char *sbrk(int);
 int sleep(int);
 int uptime(void);
 
+#define SEEK_SET	0	/* Seek from beginning of file.  */
+#define SEEK_CUR	1	/* Seek from current position.  */
+#define SEEK_END	2	/* Seek from end of file.  */
+int lseek(int, int, int);
+
 // ulib.c
 int stat(char *, struct stat *);
 void printf(int, const char *, ...);

@@ -99,6 +99,50 @@ sys_write(void) {
 	return filewrite(f, p, n);
 }
 
+// Установить позицию чтения
+int
+sys_lseek(void) {
+	struct file *f;
+	struct stat *st;
+	uint offset, whence;
+	uint size, _off;
+
+	if (argfd(0, 0, &f) < 0 || argint(1, &offset) < 0 || argint(2, &whence) < 0) {
+		return -1;
+	}
+
+	if (f->type != FD_INODE) {
+		return -1;
+	}
+
+	ilock(f->ip);
+	size = f->ip->size;
+	iunlock(f->ip);
+
+	switch(whence) {
+		//The offset is set to its current location plus offset bytes.
+		case 1://SEEK_CUR
+			_off = f->off + offset;
+			break;
+		//The offset is set to the size of the file plus offset bytes.
+		case 2://SEEK_END
+			_off = offset + size - 1;
+			break;
+		//The offset is set to offset bytes.
+		case 0://SEEK_SET
+		default:
+			_off = offset;
+			break;
+	}
+
+	if((_off < 0) || (_off >= size))
+		return -1;
+
+	f->off = _off;
+
+	return f->off;
+}
+
 int
 sys_close(void) {
 	int fd;
