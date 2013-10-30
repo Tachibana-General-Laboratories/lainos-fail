@@ -162,7 +162,9 @@ vberead(struct inode *ip, char *dst, int off, int n) {
 	iunlock(ip);
 	acquire(&vbe.lock);
 
-	memcpy(dst, vbe.video+off, size);
+	//speed hack
+	//memcpy(dst, vbe.video+off, size);
+	__builtin_memcpy(dst, vbe.video+off, size);
 
 	release(&vbe.lock);
 	ilock(ip);
@@ -177,7 +179,9 @@ vbewrite(struct inode *ip, char *buf, int off, int n) {
 	iunlock(ip);
 	acquire(&vbe.lock);
 
-	memcpy(vbe.video+off, buf, size);
+	//speed hack
+	//memcpy(vbe.video+off, buf, size);
+	__builtin_memcpy(vbe.video+off, buf, size);
 
 	release(&vbe.lock);
 	ilock(ip);
