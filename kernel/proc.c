@@ -476,17 +476,17 @@ procdump(void) {
 			state = "???";
 		}
 
-		cprintf("%d %s %s", p->pid, state, p->name);
+		KPRINTF("%d %s %s", p->pid, state, p->name);
 
 		if (p->state == SLEEPING) {
 			getcallerpcs((uint *)p->context->ebp + 2, pc);
 
 			for (i = 0; i < 10 && pc[i] != 0; i++) {
-				cprintf(" %p", pc[i]);
+				KPRINTF(" %p", pc[i]);
 			}
 		}
 
-		cprintf("\n");
+		KPRINTF("\n");
 	}
 }
 

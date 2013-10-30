@@ -54,7 +54,7 @@ printint(int xx, int base, int sign) {
 
 // Print to the console. only understands %d, %x, %p, %s.
 void
-cprintf(const char *fmt, ...) {
+_cprintf(const char *fmt, ...) {
 	int i, c, locking;
 	uint *argp;
 	char *s;
@@ -128,13 +128,13 @@ panic(const char *s) {
 
 	cli();
 	cons.locking = 0;
-	cprintf("cpu%d: panic: ", cpu->id);
-	cprintf(s);
-	cprintf("\n");
+	KPRINTF("cpu%d: panic: ", cpu->id);
+	KPRINTF(s);
+	KPRINTF("\n");
 	getcallerpcs(&s, pcs);
 
 	for (i = 0; i < 10; i++) {
-		cprintf(" %p", pcs[i]);
+		KPRINTF(" %p", pcs[i]);
 	}
 
 	panicked = 1; // freeze other CPU

@@ -1,9 +1,14 @@
-#include "x86emu/types.h"
 #include "x86emu/x86emu.h"
 #include "bios.h"
 #include "vbe.h"
 
+//#include "types.h"
+typedef unsigned short ushort;
 #include "memlayout.h"
+#include "spinlock.h"
+#include "fs.h"
+#include "file.h"
+#include "defs.h"
 
 struct x86emu emulator;
 
@@ -78,7 +83,7 @@ int VBE_Setup(int w, int h)
 {
     uint32_t m = 0;
 
-    cprintf("VBE: test started\n");
+    KPRINTF("VBE: test started\n");
     VBE_BiosInit();
     memset(P2V((char *)VBE_BIOS_INFO_OFFSET), 0, sizeof(VbeInfoBlock));
     memset(P2V((char *)VBE_BIOS_MODE_INFO_OFFSET), 0, sizeof(ModeInfoBlock));
@@ -87,7 +92,7 @@ int VBE_Setup(int w, int h)
     int vbe_support = (p_info != NULL);
     if (vbe_support == 0)
     {
-        cprintf("VBE: not supported\n");
+        KPRINTF("VBE: not supported\n");
         return 0;
     }
 
@@ -101,7 +106,7 @@ int VBE_Setup(int w, int h)
     */
     if (vbe_support == 0)
     {
-        cprintf("VBE: not supported %x %s\n", p_info->VbeVersion, sign);
+        KPRINTF("VBE: not supported %x %s\n", p_info->VbeVersion, sign);
         return 0;
     }
 
@@ -114,7 +119,7 @@ int VBE_Setup(int w, int h)
 //        ModeInfoBlock *p_m_info = VBE_GetModeInfo(m);
         if ((p_m_info != NULL) && (p_m_info != P2V(NULL)))
         {
-            cprintf("VBE: %x %dx%dx%d at %x -> %x\n", m,
+            KPRINTF("VBE: %x %dx%dx%d at %x -> %x\n", m,
                     p_m_info->XResolution,
                     p_m_info->YResolution,
                     p_m_info->BitsPerPixel,
@@ -129,12 +134,59 @@ int VBE_Setup(int w, int h)
                 vbe_selected_mode = m;
                 vbe_lfb_addr = p_m_info->PhysBasePtr;
                 vbe_bytes = p_m_info->BitsPerPixel / 8;
-                cprintf("VBE: FOUND GOOD %dx%dx%d -> %x at %x\n", w, h, vbe_bytes, vbe_selected_mode, vbe_lfb_addr);
+                KPRINTF("VBE: FOUND GOOD %dx%dx%d -> %x at %x\n", w, h, vbe_bytes, vbe_selected_mode, vbe_lfb_addr);
             }
         }
     }
     return found;
 }
+
+
+
+
+#define DEV_VBE 3
+
+struct {
+	struct spinlock lock;
+	uint size;
+    uint w;
+    uint h;
+    uint bytes;
+	void *video;
+} vbe;
+
+int
+vberead(struct inode *ip, char *dst, int off, int n) {
+	int size = (n < vbe.size)? n: vbe.size;
+
+	iunlock(ip);
+	acquire(&vbe.lock);
+
+	memcpy(dst, vbe.video+off, size);
+
+	release(&vbe.lock);
+	ilock(ip);
+
+	return size;
+}
+
+int
+vbewrite(struct inode *ip, char *buf, int off, int n) {
+	int size = (n < vbe.size)? n: vbe.size;
+
+	iunlock(ip);
+	acquire(&vbe.lock);
+
+	memcpy(vbe.video+off, buf, size);
+
+	release(&vbe.lock);
+	ilock(ip);
+
+	return size;
+}
+
+
+
 
 void test_vbe(void) {
     //int x = 0, y = 0, w= 800, h = 600;
@@ -146,6 +198,13 @@ void test_vbe(void) {
     if (!VBE_SetMode(vbe_selected_mode | 0x4000))
         return;
 
+	vbe.size = w*h*vbe_bytes;
+    vbe.video = vbe_lfb_addr;
+
+	initlock(&vbe.lock, "vbe");
+
+	devsw[DEV_VBE].write = vbewrite;
+	devsw[DEV_VBE].read = vberead;
 
     //double cRe, cIm;
     //double newRe, newIm, oldRe, oldIm;

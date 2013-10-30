@@ -16,7 +16,8 @@ void            bwrite(struct buf *);
 
 // console.c
 void            consoleinit(void);
-void            cprintf(const char *, ...);
+void            _cprintf(const char *, ...);
+#define KPRINTF(...) _cprintf(__VA_ARGS__)
 void            consoleintr(int( *)(void));
 void            panic(const char *) __attribute__((noreturn));
 

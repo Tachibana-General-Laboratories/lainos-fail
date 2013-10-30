@@ -13,7 +13,7 @@ extern char end[]; // first address after kernel loaded from ELF file
 
 #define BOOT_STEP(function, message...) \
 ({ \
-    cprintf("" #function " " message "\n"); \
+    KPRINTF("" #function " " message "\n"); \
     function; \
 })
 
@@ -27,7 +27,7 @@ main(void) {
 	BOOT_STEP(mpinit(), "// collect info about this machine");
 	BOOT_STEP(lapicinit(), "");
 	BOOT_STEP(seginit(), "// set up segments");
-	cprintf("\ncpu%d: starting xv6\n\n", cpu->id);
+	KPRINTF("\ncpu%d: starting xv6\n\n", cpu->id);
 	BOOT_STEP(picinit(), "// interrupt controller");
 	BOOT_STEP(ioapicinit(), "// another interrupt controller");
 	BOOT_STEP(consoleinit(), "// I/O devices & their interrupts");
@@ -62,7 +62,7 @@ mpenter(void) {
 // Common CPU setup code.
 static void
 mpmain(void) {
-	cprintf("cpu%d: starting\n", cpu->id);
+	KPRINTF("cpu%d: starting\n", cpu->id);
 	idtinit();       // load idt register
 	xchg(&cpu->started, 1); // tell startothers() we're up
 	scheduler();     // start running processes

@@ -107,7 +107,7 @@ cpunum(void) {
 		static int n;
 
 		if (n++ == 0)
-			cprintf("cpu called from %x with interrupts enabled\n",
+			KPRINTF("cpu called from %x with interrupts enabled\n",
 					__builtin_return_address(0));
 	}
 

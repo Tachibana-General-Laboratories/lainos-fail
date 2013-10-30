@@ -100,7 +100,7 @@ ideintr(void) {
 
 	if ((b = idequeue) == 0) {
 		release(&idelock);
-		// cprintf("spurious IDE interrupt\n");
+		// KPRINTF("spurious IDE interrupt\n");
 		return;
 	}
 

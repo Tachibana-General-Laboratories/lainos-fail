@@ -56,7 +56,7 @@ ioapicinit(void) {
 	id = ioapicread(REG_ID) >> 24;
 
 	if (id != ioapicid) {
-		cprintf("ioapicinit: id isn't equal to ioapicid; not a MP\n");
+		KPRINTF("ioapicinit: id isn't equal to ioapicid; not a MP\n");
 	}
 
 	// Mark all interrupts edge-triggered, active high, disabled,

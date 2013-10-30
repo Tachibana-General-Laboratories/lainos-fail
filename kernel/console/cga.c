@@ -38,7 +38,6 @@ cgaread(struct inode *ip, char *dst, int off, int n) {
 
 int
 cgawrite(struct inode *ip, char *buf, int off, int n) {
-	//cprintf("cga - %s\n", buf);
 	int size = (n < cga.size)? n: cga.size;
 
 	iunlock(ip);

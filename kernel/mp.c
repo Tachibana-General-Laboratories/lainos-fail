@@ -134,7 +134,7 @@ mpinit(void) {
 			proc = (struct mpproc *)p;
 
 			if (ncpu != proc->apicid) {
-				cprintf("mpinit: ncpu=%d apicid=%d\n", ncpu, proc->apicid);
+				KPRINTF("mpinit: ncpu=%d apicid=%d\n", ncpu, proc->apicid);
 				ismp = 0;
 			}
 
@@ -160,7 +160,7 @@ mpinit(void) {
 			continue;
 
 		default:
-			cprintf("mpinit: unknown config type %x\n", *p);
+			KPRINTF("mpinit: unknown config type %x\n", *p);
 			ismp = 0;
 		}
 	}
