@@ -8,6 +8,7 @@ LDFLAGS += -T lib/link.ld
 
 # Объявляем те проги, которые нам нужны
 UPROGS=\
+	_testvbe\
 	_cat\
 	_echo\
 	_grep\

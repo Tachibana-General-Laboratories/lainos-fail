@@ -26,7 +26,7 @@ ifndef QEMU
 QEMU := qemu-system-i386
 endif
 ifndef CPUS
-CPUS := 2
+CPUS := 1
 endif
 ifndef QEMUEXTRA
 QEMUEXTRA := -m 512

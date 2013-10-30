@@ -108,10 +108,12 @@ sys_lseek(void) {
 	uint size, _off;
 
 	if (argfd(0, 0, &f) < 0 || argint(1, &offset) < 0 || argint(2, &whence) < 0) {
+		KPRINTF("fail lseek param\n");
 		return -1;
 	}
 
 	if (f->type != FD_INODE) {
+		KPRINTF("fail lseek not FD_INODE\n");
 		return -1;
 	}
 
@@ -135,8 +137,15 @@ sys_lseek(void) {
 			break;
 	}
 
-	if((_off < 0) || (_off >= size))
+	if(_off < 0) {
+		KPRINTF("fail lseek _off<0 %d\n", _off);
 		return -1;
+	}
+
+	if((f->type == FD_INODE) && (_off >= size)) {
+		//KPRINTF("fail lseek _off>=size %d\n", _off);
+		//return -1;
+	}
 
 	f->off = _off;
 
