@@ -1,0 +1,175 @@
+diff --git a/apps/Makefile b/apps/Makefile
+index f8507f7..4067942 100644
+--- a/apps/Makefile
++++ b/apps/Makefile
+@@ -11,6 +11,9 @@ LDFLAGS += -T lib/link.ld
+ 
+ # Объявляем те проги, которые нам нужны
+ UPROGS=\
++	_picol\
++	_testenv\
++	_env\
+ 	_cat\
+ 	_echo\
+ 	_grep\
+@@ -51,5 +54,5 @@ _forktest: forktest.o $(ULIB)
+ 	$(LD) $(LDFLAGS) -o _forktest forktest.o lib/_start.o lib/ulib.o lib/usys.o $(LDLIBS)
+ 
+ clean: 
+-	rm -f *.o *.d *.asm *.sym $(UPROGS) $(ULIB)
++	rm -rf *.o *.d *.asm *.sym $(UPROGS) $(ULIB)
+ 
+diff --git a/apps/init.c b/apps/init.c
+index 49f446e..8010d5c 100644
+--- a/apps/init.c
++++ b/apps/init.c
+@@ -6,7 +6,35 @@
+ #include <sys/fcntl.h>
+ 
+ char *argv[] = { "sh", 0 };
+-char *envp[] = {"PATH=/bin:", "USER=lain", 0};
++
++static char *fgets(char *buf, int max, int fd) {
++	int i, cc;
++	char c;
++
++	for (i = 0; i + 1 < max;) {
++		cc = read(fd, &c, 1);
++
++		if (cc < 1) {
++			break;
++		}
++
++		buf[i++] = c;
++
++		if (c == '\n' || c == '\r') {
++			break;
++		}
++	}
++
++	buf[i] = '\0';
++	return buf;
++}
++
++static char* strdup(const char* src) {
++	int len = strlen(src);
++	char *dst = calloc(len, sizeof(char));
++	memcpy(dst, src, len*sizeof(char));
++	return dst;
++}
+ 
+ int
+ main(void) {
+@@ -20,6 +48,25 @@ main(void) {
+ 	dup(0);  // stdout
+ 	dup(0);  // stderr
+ 
++	char *envp[512];
++	memset(&envp, 0, 512);
++	int fd, i=0;
++	char buf[512];
++	//char *env;
++ 
++	// Инициализация переменных окружения
++	if((fd = open("/etc/environment", O_RDONLY)) > 0) {
++		memset(&buf, 0, 512);
++		while(fgets(&buf, 512, fd) && buf[0]) {
++			// Удаляем \n
++			buf[strlen(&buf)-1] = 0;
++			envp[i++] = strdup(&buf);
++			memset(&buf, 0, 512);
++		}
++	} else {
++		envp[i++] = strdup("PATH=.:/bin");
++	}
++
+ 	for (;;) {
+ 		printf(1, "init: starting sh\n");
+ 		pid = fork();
+diff --git a/apps/lib/ulib.c b/apps/lib/ulib.c
+index 3cbf5ed..9dc4da4 100644
+--- a/apps/lib/ulib.c
++++ b/apps/lib/ulib.c
+@@ -4,6 +4,43 @@
+ #include <user.h>
+ #include <sys/x86.h>
+ 
++#define min(a, b) ((a < b)? a: b)
++
++int exec(const char *name, char **argv) {
++	int fd;
++	char buf[512];
++
++	const char *PATH = getenv("PATH");
++	int PATH_end = PATH+strlen(PATH);
++
++	char *start = PATH;
++	char *end = 0;
++
++	int is = 1;
++	while(is) {
++		end = strchr(start, ':');
++
++		if(end == 0) {
++			is = 0;
++			end = PATH_end;
++		}
++
++		memset(&buf, 0, 512);
++		strncpy(buf, start, min(512, end - start));
++
++		buf[strlen(buf)] = '/';
++		strcpy(buf+strlen(buf), name);
++
++		if ((fd = open(buf, O_RDONLY)) > 0) {
++			return execve(buf, argv, environ);
++		}
++		close(fd);
++
++		start = end+1;
++	}
++
++	return -1;
++}
+ 
+ char *
+ gets(char *buf, int max) {
+@@ -151,7 +188,6 @@ int unsetenv(const char *name) {
+ // FIXME: fail set. Why?
+ #define alloca(size)   __builtin_alloca (size)
+ int putenv(char *string) {
+-	return -1;// ну чтоб не портил ничего
+ 	char *name_end = strchr(string, '=');
+ 
+ 	if (name_end) {
+diff --git a/include/user.h b/include/user.h
+index 7d4ab8d..ee9227a 100644
+--- a/include/user.h
++++ b/include/user.h
+@@ -17,7 +17,7 @@ int close(int);
+ int kill(int);
+ 
+ int execve(const char *, char **, char **);
+-#define exec(pa, arg) execve(pa,arg,environ)
++int exec(const char *, char **);
+ 
+ int open(const char *, int);
+ int mknod(const char *, short, short);
+diff --git a/libc/malloc.c b/libc/malloc.c
+index e6b0a8f..bc7d949 100644
+--- a/libc/malloc.c
++++ b/libc/malloc.c
+@@ -118,10 +118,12 @@ void *realloc(void *ptr, size_t size) {
+ 
+ 	bp = (Header *)ptr - 1;
+ 
++	size_t old_size = bp->s.size*sizeof(Header);
++
+ 	void *ret_ptr = malloc(size);
+ 	// FIXME: доделать (не уверен в правильности s.size)
+ 	// по идее нужно всё циклом обходить
+-	ret_ptr = memmove(ret_ptr, ptr, (size < bp->s.size) ? size : bp->s.size);
++	ret_ptr = memmove(ret_ptr, ptr, (size < old_size) ? size : old_size);
+ 
+ 	free(ptr);
+ 

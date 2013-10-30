@@ -45,7 +45,7 @@ static uint8_t	fetch_byte_imm (struct x86emu *);
 static uint16_t	fetch_word_imm (struct x86emu *);
 static uint32_t	fetch_long_imm (struct x86emu *);
 static uint8_t	fetch_data_byte (struct x86emu *, uint32_t offset);
-static uint8_t	fetch_byte (struct x86emu *, uint segment, uint32_t offset);
+static uint8_t	fetch_byte (struct x86emu *, uint32_t segment, uint32_t offset);
 static uint16_t	fetch_data_word (struct x86emu *, uint32_t offset);
 static uint16_t	fetch_word (struct x86emu *, uint32_t segment, uint32_t offset);
 static uint32_t	fetch_data_long (struct x86emu *, uint32_t offset);

@@ -12,7 +12,7 @@ export OBJDUMP = $(TOOLPREFIX)objdump
 
 export ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 export CFLAGS = \
-	-std=gnu99 -ffreestanding -ggdb3 -m32 -nostdlib \
+	-std=gnu99 -ffreestanding -m32 -nostdlib \
 	-nostdinc -mno-red-zone -mno-mmx \
 	-mno-sse -mno-sse2 -mno-sse3 -mno-3dnow -ggdb3 \
 	-Wall -Wextra -Wmissing-include-dirs -Wshadow \
@@ -46,7 +46,7 @@ FS_PATH = fs
 # Далее идут цели компиляции
 ###
 
-.PHONY: all img clean format apps kernel fs_bin libc mkfs
+.PHONY: all img clean format apps kernel fs_bin lib mkfs
 
 # Главная цель
 all: img
@@ -54,7 +54,7 @@ all: img
 clean:
 	$(MAKE) -C apps clean
 	$(MAKE) -C kernel clean
-	$(MAKE) -C libc clean
+	$(MAKE) -C lib clean
 	$(MAKE) -C mkfs clean
 	rm -f .gdbinit $(KERNEL_IMG) $(FS_IMG)
 	rm -rf $(FS_PATH)/bin/* $(FS_PATH)/init $(FS_PATH)/sh
@@ -68,7 +68,7 @@ format:
 img: $(KERNEL_IMG) $(FS_IMG)
 
 # Ядро
-kernel:
+kernel: lib
 	$(MAKE) -C kernel bootblock
 	$(MAKE) -C kernel kernel
 # img с ядром внутри
@@ -78,11 +78,11 @@ $(KERNEL_IMG): kernel
 	dd if=kernel/kernel of=$(KERNEL_IMG) seek=1 conv=notrunc
 
 # Приложения
-apps: libc
+apps: lib
 	$(MAKE) -C apps
 # Библиотека C
-libc:
-	$(MAKE) -C libc
+lib:
+	$(MAKE) -C lib
 # Утилита, которая делает fs.img
 mkfs:
 	$(MAKE) -C mkfs

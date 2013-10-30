@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
-#include "tss_errno/errno.h"
+#include <errno.h>
 
 static const char _digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 

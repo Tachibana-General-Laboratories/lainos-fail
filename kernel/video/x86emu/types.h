@@ -24,8 +24,8 @@ typedef unsigned long __uint32_t;
 typedef unsigned long long u_quad_t;    /* quads */
 typedef long long quad_t;
 typedef quad_t * qaddr_t;
-typedef unsigned long u_int;
-typedef unsigned long uint;
+//typedef unsigned long u_int;
+//typedef unsigned long uint;
 
 typedef long long int64_t;
 typedef long int32_t;

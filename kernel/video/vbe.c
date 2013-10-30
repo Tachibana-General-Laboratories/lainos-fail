@@ -2,7 +2,7 @@
 #include "bios.h"
 #include "vbe.h"
 
-//#include "types.h"
+#include "types.h"
 typedef unsigned short ushort;
 #include "memlayout.h"
 #include "spinlock.h"

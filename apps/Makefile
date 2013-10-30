@@ -6,7 +6,7 @@ ASFLAGS += -I ../include/libc
 
 BUILD_DIR = ../build/apps
 
-LDLIBS += ../libc/libc.a
+LDLIBS += ../lib/libc.a
 LDFLAGS += -T lib/link.ld
 
 # Объявляем те проги, которые нам нужны

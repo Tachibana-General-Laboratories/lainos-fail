@@ -7,6 +7,8 @@ OBJS = \
 	console/cga.o\
 	console/kbd.o\
 	console/uart.o\
+	syscall/trapasm.o\
+	syscall/trap.o\
 	syscall/syscall.o\
 	syscall/sysfile.o\
 	syscall/sysproc.o\
@@ -14,33 +16,32 @@ OBJS = \
 	fs/file.o\
 	fs/fs.o\
 	fs/pipe.o\
+	fs/ide.o\
+	fs/log.o\
+	fs/exec.o\
 	video/vbe.o\
 	video/x86emu/setjmp.o\
 	video/x86emu/x86emu.o\
 	video/x86emu/x86emu_util.o\
-	video/x86emu/divdi3.o\
-	video/x86emu/moddi3.o\
-	video/x86emu/udivdi3.o\
-	video/x86emu/umoddi3.o\
-	video/x86emu/qdivrem.o\
-	exec.o\
-	ide.o\
+	proc/kalloc.o\
+	proc/swtch.o\
+	proc/proc.o\
+	proc/vm.o\
 	ioapic.o\
-	kalloc.o\
 	lapic.o\
-	log.o\
 	main.o\
 	mp.o\
 	picirq.o\
-	proc.o\
 	spinlock.o\
 	string.o\
-	swtch.o\
 	timer.o\
-	trapasm.o\
-	trap.o\
 	vectors.o\
-	vm.o\
+
+#	video/x86emu/divdi3.o\
+#	video/x86emu/moddi3.o\
+#	video/x86emu/udivdi3.o\
+#	video/x86emu/umoddi3.o\
+#	video/x86emu/qdivrem.o\
 
 # Бутлоадер
 bootblock: bootasm.S bootmain.c
@@ -65,7 +66,7 @@ initcode: initcode.S
 
 # Ядро
 kernel: $(OBJS) entry.o entryother initcode kernel.ld
-	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) -b binary initcode entryother
+	$(LD) $(LDFLAGS) -T kernel.ld -o kernel entry.o $(OBJS) ../lib/quad.a -b binary initcode entryother
 	#$(OBJDUMP) -S kernel > kernel.asm
 	$(OBJDUMP) -t kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
