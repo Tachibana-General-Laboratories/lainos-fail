@@ -1,8 +1,5 @@
 CFLAGS += -I ../include
-ASFLAGS += -I ../include
-
 CFLAGS += -I ../include/libc
-ASFLAGS += -I ../include/libc
 
 BUILD_DIR = ../build/apps
 
@@ -29,10 +26,8 @@ UPROGS=\
 	_usertests\
 	_libctests\
 
-ULIB = lib/_start.o lib/usys.o lib/ulib.o lib/printf.o
-
 # Далее идёт магия
-_%: %.o $(ULIB)
+_%: %.o
 	$(LD) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
@@ -45,11 +40,11 @@ _%: %.o $(ULIB)
 
 all: $(UPROGS)
 
-_forktest: forktest.o $(ULIB)
+_forktest: forktest.o
 	# forktest has less library code linked in - needs to be small
 	# in order to be able to max out the proc table.
-	$(LD) $(LDFLAGS) -o _forktest forktest.o lib/_start.o lib/ulib.o lib/usys.o $(LDLIBS)
+	$(LD) $(LDFLAGS) -o _forktest forktest.o $(LDLIBS)
 
 clean: 
-	rm -f *.o *.d *.asm *.sym $(UPROGS) $(ULIB)
+	rm -f *.o *.d *.asm *.sym $(UPROGS)
 
