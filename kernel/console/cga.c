@@ -42,10 +42,10 @@ cgaputc(int c) {
 		crt[pos++] = (c & 0xff) | 0x0700;    // black on white
 	}
 
-	if ((pos / 80) >= 24) { // Scroll up.
-		memmove(crt, crt + 80, sizeof(crt[0]) * 23 * 80);
+	if ((pos / 80) >= 25) { // Scroll up.
+		memmove(crt, crt + 80, sizeof(crt[0]) * 24 * 80);
 		pos -= 80;
-		memset(crt + pos, 0, sizeof(crt[0]) * (24 * 80 - pos));
+		memset(crt + pos, 0, sizeof(crt[0]) * (25 * 80 - pos));
 	}
 
 	outb(CRTPORT, 14);
@@ -89,7 +89,6 @@ cgawrite(struct inode *ip, char *buf, int off, int n) {
 void
 cgainit(void) {
 	cga.size = 80*25;
-	//cga.crt = (char *)P2V(0xb8000); // CGA memory
 
 	initlock(&cga.lock, "cga");
 
